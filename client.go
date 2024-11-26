@@ -69,6 +69,16 @@ func NewDefaultClient() *Client {
 	return NewClient(WithGraphQLClient(gql))
 }
 
+func NewDefaultClientV2(apiKey string, accessToken string, storeName string) *Client {
+	if apiKey == "" || accessToken == "" || storeName == "" {
+		log.Fatalln("Shopify API key and/or password (aka access token) and/or store name not set")
+	}
+
+	gql := newShopifyGraphQLClientWithBasicAuth(apiKey, accessToken, storeName)
+
+	return NewClient(WithGraphQLClient(gql))
+}
+
 func NewPrivateClient() *Client {
 	return NewClientWithToken(os.Getenv("STORE_PASSWORD"), os.Getenv("STORE_NAME"))
 }

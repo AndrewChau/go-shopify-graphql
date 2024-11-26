@@ -38,74 +38,40 @@ const orderBaseQuery = `
 	legacyResourceId
 	name
 	createdAt
-	customer{
-		id
+	processedAt
+	email
+	displayFinancialStatus
+	displayFulfillmentStatus
+	customer {
 		legacyResourceId
-		firstName
-		displayName
-		email
 	}
-	clientIp
-	shippingAddress{
+	billingAddress {
+		name
+		company
 		address1
 		address2
 		city
-		province
-		country
 		zip
+		provinceCode
+		countryCodeV2
+		phone
 	}
-	shippingLine{
-		originalPriceSet{
-			presentmentMoney{
-				amount
-				currencyCode
-			}
-			shopMoney{
-				amount
-				currencyCode
-			}
-		}
-		title
+	shippingAddress {
+		name
+		company
+		address1
+		address2
+		city
+		zip
+		provinceCode
+		countryCodeV2
+			phone
 	}
-	taxLines{
-		priceSet{
-			presentmentMoney{
-				amount
-				currencyCode
-			}
-			shopMoney{
-				amount
-				currencyCode
-			}
-		}
-		rate
-		ratePercentage
-		title
-	}
-	totalReceivedSet{
-		presentmentMoney{
-			amount
-			currencyCode
-		}
-		shopMoney{
-			amount
-			currencyCode
-		}
-	}
-	note
-	tags
 	transactions {
-		processedAt
-		status
-		kind
-		test
-		amountSet {
-			shopMoney {
-				amount
-				currencyCode
-			}
-		}
-	}	
+		gateway
+		paymentId
+	}
+	tags
 `
 
 const orderLightQuery = `
@@ -143,61 +109,20 @@ const orderLightQuery = `
 const lineItemFragment = `
 fragment lineItem on LineItem {
 	id
+	product {
+		legacyResourceId
+	}
+	name
 	sku
 	quantity
-	fulfillableQuantity
-	fulfillmentStatus
-	product{
-		id
-		legacyResourceId										
-	}
-	vendor
-	title
-	variantTitle
-	variant{
-		id
-		legacyResourceId	
-		selectedOptions{
-			name
-			value
-		}									
-	}
-	originalTotalSet{
-		presentmentMoney{
-			amount
-			currencyCode
-		}
-		shopMoney{
+	originalUnitPriceSet {
+		shopMoney {
 			amount
 			currencyCode
 		}
 	}
-	originalUnitPriceSet{
-		presentmentMoney{
-			amount
-			currencyCode
-		}
-		shopMoney{
-			amount
-			currencyCode
-		}
-	}
-	discountedUnitPriceSet{
-		presentmentMoney{
-			amount
-			currencyCode
-		}
-		shopMoney{
-			amount
-			currencyCode
-		}
-	}
-	discountedTotalSet{
-		presentmentMoney{
-			amount
-			currencyCode
-		}
-		shopMoney{
+	discountedUnitPriceSet {
+		shopMoney {
 			amount
 			currencyCode
 		}
@@ -224,33 +149,13 @@ func (s *OrderServiceOp) Get(ctx context.Context, id graphql.ID) (*model.Order, 
 			node(id: $id){
 				... on Order {
 					%s
-					lineItems(first:50){
+					lineItems(first: 250){
 						edges{
 							node{
 								...lineItem
 							}
 						}
-					}
-					fulfillmentOrders(first:5){
-						edges {
-							node {
-								id
-								status
-								lineItems(first:50){
-									edges {
-										node {
-											id
-											remainingQuantity
-											totalQuantity
-											lineItem{
-												sku
-											}								
-										}
-									}
-								}
-							}
-						}
-					}					
+					}			
 				}
 			}
 		}
